@@ -8,7 +8,7 @@
   <meta name="description">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Signit">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:url" content="http://SemonCat.github.io/index.html">
 <meta property="og:site_name" content="Signit">
 <meta property="og:description">
 <meta name="twitter:card" content="summary">
@@ -53,7 +53,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://SemonCat.github.io"></form>
       </div>
     </div>
   </div>
@@ -61,10 +61,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-repost-group-introduction-to-android-dex-automatically-unpacked-and-loaded-dynamically" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2015/12/13/hello-world/" class="article-date">
-  <time datetime="2015-12-13T12:35:01.000Z" itemprop="datePublished">2015-12-13</time>
+    <a href="/2015/11/05/repost-group-introduction-to-android-dex-automatically-unpacked-and-loaded-dynamically/" class="article-date">
+  <time datetime="2015-11-04T23:13:00.000Z" itemprop="datePublished">2015-11-05</time>
 </a>
     
   </div>
@@ -75,7 +75,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2015/12/13/hello-world/">Hello World</a>
+      <a class="article-title" href="/2015/11/05/repost-group-introduction-to-android-dex-automatically-unpacked-and-loaded-dynamically/">[轉貼] Android DEX 自動拆包及動態加載簡介</a>
     </h1>
   
 
@@ -83,20 +83,538 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>Welcome to <a href="http://hexo.io/" target="_blank" rel="external">Hexo</a>! This is your very first post. Check <a href="http://hexo.io/docs/" target="_blank" rel="external">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="http://hexo.io/docs/troubleshooting.html" target="_blank" rel="external">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="external">GitHub</a>.</p>
-<h2 id="Quick_Start"><a href="#Quick_Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create_a_new_post"><a href="#Create_a_new_post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/writing.html" target="_blank" rel="external">Writing</a></p>
-<h3 id="Run_server"><a href="#Run_server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/server.html" target="_blank" rel="external">Server</a></p>
-<h3 id="Generate_static_files"><a href="#Generate_static_files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/generating.html" target="_blank" rel="external">Generating</a></p>
-<h3 id="Deploy_to_remote_sites"><a href="#Deploy_to_remote_sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="http://hexo.io/docs/deployment.html" target="_blank" rel="external">Deployment</a></p>
+        <a id="more"></a>
+<h1 id="u6982_u8FF0"><a href="#u6982_u8FF0" class="headerlink" title="概述"></a>概述</h1><p>作為一個 Android 開發者，在開發應用時，隨著業務規模發展到一定程度，不斷地加入新功能、添加新的 Library，代碼在急劇的膨脹，相應的 Apk 大小也急劇增加， 那麼終有一天，你會不幸遇到這個錯誤：</p>
+<ol>
+<li>生成的 apk 在android 2.3或之前的機器上無法安裝，提示INSTALL_FAILED_DEXOPT</li>
+<li>方法數量過多，編譯時出錯，提示：<br><code>Conversion to Dalvik format failed:Unable to execute dex: method ID not in [0, 0xffff]: 65536</code></li>
+</ol>
+<p>而問題產生的具體原因如下：</p>
+<ol>
+<li><p>無法安裝（Android 2.3 INSTALL_FAILED_DEXOPT）問題，是由 dexopt 的 LinearAlloc 限制引起的，在 Android 版本不同分別經歷了 4M/5M/8M/16M 限制，目前主流 4.2.x 系統上可能都已到 16M，在 Gingerbread 或者以下系統 LinearAllocHdr 分配空間只有5M大小的，高於 Gingerbread 的系統提升到了 8M。Dalvik linearAlloc 是一個固定大小的緩衝區。在應用的安裝過程中，系統會運行一個名為 dexopt 的程序為該應用在當前機型中運行做準備。dexopt 使用 LinearAlloc 來存儲應用的方法信息。Android 2.2 和 2.3 的緩衝區只有 5MB，Android 4.x 提高到了 8MB 或 16MB。當方法數量過多導致超出緩衝區大小時，會造成 dexopt 崩潰。</p>
+</li>
+<li><p>超過最大方法數限制的問題，是由於 DEX 文件格式限制，一個 DEX 文件中 method 個數採用使用原生類型 short 來索引文件中的方法，也就是 4 個字節共計最多表達 65536 個 method，field/class 的個數也均有此限制。對於 DEX 文件，則是將工程所需全部 class 文件合並且壓縮到一個 DEX 文件期間，也就是 Android 打包的 DEX 過程中， 單個 DEX 文件可被引用的方法總數（自己開發的代碼以及所引用的Android框架、Library 的代碼）被限制為 65536；</p>
+</li>
+</ol>
+<h1 id="u63D2_u4EF6_u5316_uFF1F_MultiDex_uFF1F"><a href="#u63D2_u4EF6_u5316_uFF1F_MultiDex_uFF1F" class="headerlink" title="插件化？ MultiDex？"></a>插件化？ MultiDex？</h1><p>解決這個問題，一般有下面幾種方案，一種方案是加大 Proguard 的力度來減小 DEX 的大小和方法數，但這是治標不治本的方案，隨著業務代碼的添加，方法數終究會到達這個限制，一種比較流行的方案是插件化方案，另外一種是採用 Google 提供的 MultiDex 方案，以及 Google 在推出 MultiDex 之前 Android Developers  部落格介紹的通過<a href="http://android-developers.blogspot.hk/2011/07/custom-class-loading-in-dalvik.html" target="_blank" rel="external">自定義類加載過程</a>， 再就是Facebook推出的為 Android 應用開發的 <a href="https://www.facebook.com/notes/facebook-engineering/under-the-hood-dalvik-patch-for-facebook-for-android/10151345597798920" target="_blank" rel="external">Dalvik補丁</a>， 但 Facebook 部落格裡寫的不是很詳細；我們在插件化方案上也做了探索和嘗試，發現部署插件化方案，首先需要梳理和修改各個業務線的代碼，使之解耦，改動的面和量比較巨大，通過一定的探討和分析，我們認為對我們目前來說採用 MultiDex 方案更靠譜一些，這樣我們可以快速和簡潔的對代碼進行拆分，同時代碼改動也在可以接受的範圍內； 這樣我們採用了 Google 提供的 MultiDex 方式進行了開發。</p>
+<p>插件化方案在業內有不同的實現原理，這裡不再一一列舉，這裡只列舉下 Google 為構建超過 65K 方法數的應用提供官方支持的方案：<a href="https://developer.android.com/intl/zh-tw/reference/android/support/multidex/MultiDex.html" target="_blank" rel="external">MultiDex</a>。</p>
+<p>首先使用 Android SDK Manager 升級到最新的 Android SDK Build Tools 和 Android Support Library。然後進行以下兩步操作：</p>
+<ol>
+<li><p>修改 Gradle 配置文件，啟用 MultiDex 並包含 MultiDex 支持：</p>
+<figure class="highlight lasso"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">android &#123;</span><br><span class="line">      compileSdkVersion <span class="number">21</span> buildToolsVersion <span class="string">"21.1.0"</span></span><br><span class="line"></span><br><span class="line">      defaultConfig &#123;</span><br><span class="line">          <span class="attribute">...</span></span><br><span class="line">          minSdkVersion <span class="number">14</span></span><br><span class="line">          targetSdkVersion <span class="number">21</span></span><br><span class="line">          <span class="attribute">...</span></span><br><span class="line"></span><br><span class="line">          <span class="comment">// Enabling MultiDex support.</span></span><br><span class="line">          MultiDexEnabled <span class="literal">true</span></span><br><span class="line">          &#125;</span><br><span class="line">          <span class="attribute">...</span></span><br><span class="line">      &#125;</span><br><span class="line">      dependencies &#123; compile <span class="string">'com.android.support:MultiDex:1.0.0'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>讓應用支持多 DEX 文件。在官方文檔中描述了三種可選方法：<br>在 AndroidManifest.xml 的 application 中聲明 android.support.MultiDex.MultiDexApplication；<br>如果你已經有自己的 Application 類，讓其繼承 MultiDexApplication；<br>如果你的 Application 類已經繼承自其它類，你不想/能修改它，那麼可以重寫 attachBaseContext() 方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@Override</span> </span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">attachBaseContext</span><span class="params">(Context base)</span> </span>&#123;</span><br><span class="line">      <span class="keyword">super</span>.attachBaseContext(base);</span><br><span class="line">      MultiDex.install(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>並在Manifest中添加以下聲明：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="pi">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">manifest</span> <span class="attribute">xmlns:android</span>=<span class="value">"http://schemas.android.com/apk/res/android"</span> <span class="attribute">package</span>=<span class="value">"com.example.android.MultiDex.myapplication"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">application</span></span><br><span class="line">        <span class="attribute">...</span></span><br><span class="line">        <span class="attribute">android:name</span>=<span class="value">"android.support.MultiDex.MultiDexApplication"</span>&gt;</span></span><br><span class="line">        ...</span><br><span class="line">        <span class="tag">&lt;/<span class="title">application</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="title">manifest</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>如果已經有自己的 Application，則讓其繼承 MultiDexApplication 即可。</p>
+<h1 id="Dex__u81EA_u52D5_u62C6_u5305_u53CA_u52D5_u614B_u52A0_u8F09_MultiDex__u5E36_u4F86_u7684_u554F_u984C"><a href="#Dex__u81EA_u52D5_u62C6_u5305_u53CA_u52D5_u614B_u52A0_u8F09_MultiDex__u5E36_u4F86_u7684_u554F_u984C" class="headerlink" title="Dex 自動拆包及動態加載 MultiDex 帶來的問題"></a>Dex 自動拆包及動態加載 MultiDex 帶來的問題</h1><p>在第一版本採用 MultiDex 方案上線後，在 Dalvik 下 <a href="https://android.googlesource.com/platform/frameworks/MultiDex/" target="_blank" rel="external">MultiDex</a> 帶來了下列幾個問題：</p>
+<ol>
+<li><p>在冷啟動時因為需要安裝 DEX 文件，如果 DEX 文件過大時，處理時間過長，很容易引發 ANR（Application Not Responding）；</p>
+</li>
+<li><p>採用 MultiDex 方案的應用可能不能在低於 Android 4.0 (API level 14) 機器上啟動，這個主要是因為 Dalvik linearAlloc 的一個 bug (<a href="http://b.android.com/22586" target="_blank" rel="external">Issue 22586</a>);</p>
+</li>
+<li><p>採用 MultiDex 方案的應用因為需要申請一個很大的內存，在運行時可能導致程序的崩潰，這個主要是因為 Dalvik linearAlloc 的一個限制(<a href="http://b.android.com/78035" target="_blank" rel="external">Issue 78035</a>). 這個限制在 Android 4.0 (API level 14)已經增加了, 應用也有可能在低於 Android 5.0 (API level 21)版本的機器上觸發這個限制；</p>
+</li>
+</ol>
+<p>而在 ART 下 MultiDex 是不存在這個問題的，這主要是因為 ART 下採用 Ahead-of-time (AOT) compilation 技術，系統在 APK 的安裝過程中會使用自帶的 dex2oat 工具對 APK 中可用的 DEX 文件進行編譯並生成一個可在本地機器上運行的文件，這樣能提高應用的啟動速度，因為是在安裝過程中進行了處理這樣會影響應用的安裝速度，對 ART 感興趣的可以參考一下 ART 和 Dalvik 的區別.</p>
+<p>MultiDex 的基本原理是把通過 DexFile 來加載 Secondary DEX，並存放在 BaseDexClassLoader 的 DexPathList 中。</p>
+<p>下面代碼片段是 BaseDexClassLoader findClass 的過程:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">    List&lt;Throwable&gt; suppressedExceptions = <span class="keyword">new</span> ArrayList&lt;Throwable&gt;();</span><br><span class="line">    Class c = pathList.findClass(name, suppressedExceptions);</span><br><span class="line">    <span class="keyword">if</span> (c == <span class="keyword">null</span>) &#123;</span><br><span class="line">        ClassNotFoundException cnfe = <span class="keyword">new</span> ClassNotFoundException(<span class="string">"Didn't find class \""</span> + name + <span class="string">"\" on path: "</span> + pathList); </span><br><span class="line">        <span class="keyword">for</span> (Throwable t : suppressedExceptions) &#123;</span><br><span class="line">            cnfe.addSuppressed(t);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">throw</span> cnfe;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>下面代碼片段為怎麼通過 DexFile 來加載 Secondary DEX 並放到 BaseDexClassLoader 的 DexPathList 中:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">install</span><span class="params">(ClassLoader loader, List&lt;File&gt; additionalClassPathEntries,</span><br><span class="line">                            File optimizedDirectory)</span></span><br><span class="line">        <span class="keyword">throws</span> IllegalArgumentException, IllegalAccessException,</span><br><span class="line">        NoSuchFieldException, InvocationTargetException, NoSuchMethodException </span>&#123;</span><br><span class="line">    <span class="comment">/* The patched class loader is expected to be a descendant of</span><br><span class="line">     * dalvik.system.BaseDexClassLoader. We modify its</span><br><span class="line">     * dalvik.system.DexPathList pathList field to append additional DEX</span><br><span class="line">     * file entries.</span><br><span class="line">     */</span></span><br><span class="line">    Field pathListField = findField(loader, <span class="string">"pathList"</span>);</span><br><span class="line">    Object dexPathList = pathListField.get(loader);</span><br><span class="line">    ArrayList&lt;IOException&gt; suppressedExceptions = <span class="keyword">new</span> ArrayList&lt;IOException&gt;();</span><br><span class="line">    expandFieldArray(dexPathList, <span class="string">"dexElements"</span>, makeDexElements(dexPathList,</span><br><span class="line">            <span class="keyword">new</span> ArrayList&lt;File&gt;(additionalClassPathEntries), optimizedDirectory,</span><br><span class="line">            suppressedExceptions));</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (suppressedExceptions.size() &gt; <span class="number">0</span>) &#123;</span><br><span class="line">            <span class="keyword">for</span> (IOException e : suppressedExceptions) &#123;</span><br><span class="line">                <span class="comment">//Log.w(TAG, "Exception in makeDexElement", e);</span></span><br><span class="line">            &#125;</span><br><span class="line">            Field suppressedExceptionsField =</span><br><span class="line">                    findField(loader, <span class="string">"dexElementsSuppressedExceptions"</span>);</span><br><span class="line">            IOException[] dexElementsSuppressedExceptions =</span><br><span class="line">                    (IOException[]) suppressedExceptionsField.get(loader);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (dexElementsSuppressedExceptions == <span class="keyword">null</span>) &#123;</span><br><span class="line">                dexElementsSuppressedExceptions =</span><br><span class="line">                        suppressedExceptions.toArray(</span><br><span class="line">                                <span class="keyword">new</span> IOException[suppressedExceptions.size()]);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                IOException[] combined =</span><br><span class="line">                        <span class="keyword">new</span> IOException[suppressedExceptions.size() +</span><br><span class="line">                                dexElementsSuppressedExceptions.length];</span><br><span class="line">                suppressedExceptions.toArray(combined);</span><br><span class="line">                System.arraycopy(dexElementsSuppressedExceptions, <span class="number">0</span>, combined,</span><br><span class="line">                        suppressedExceptions.size(), dexElementsSuppressedExceptions.length);</span><br><span class="line">                dexElementsSuppressedExceptions = combined;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            suppressedExceptionsField.set(loader, dexElementsSuppressedExceptions);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span>(Exception e) &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="Dex_u81EA_u52D5_u62C6_u5305_u53CA_u52D5_u614B_u52A0_u8F09_u65B9_u6848_u7C21_u4ECB"><a href="#Dex_u81EA_u52D5_u62C6_u5305_u53CA_u52D5_u614B_u52A0_u8F09_u65B9_u6848_u7C21_u4ECB" class="headerlink" title="Dex自動拆包及動態加載方案簡介"></a>Dex自動拆包及動態加載方案簡介</h1><p>通過查看 MultiDex 的源碼，我們發現 MultiDex 在冷啟動時容易導致 ANR 的瓶頸， 在 2.1 版本之前的 Dalvik 的 VM版本中， MultiDex 的安裝大概分為幾步，第一步打開 apk 這個 zip 包，第二步把 MultiDex 的 dex 解壓出來（除去Classes.dex 之外的其他 DEX，例如：classes2.dex， classes3.dex 等等)，因為 android 系統在啟動 app 時只加載了第一個 Classes.dex，其他的 DEX 需要我們人工進行安裝，第三步通過反射進行安裝，這三步其實都比較耗時， 為瞭解決這個問題我們考慮是否可以把 DEX 的加載放到一個異步線程中，這樣冷啟動速度能提高不少，同時能夠減少冷啟動過程中的 ANR，對於 Dalvik linearAlloc 的一個缺陷(<a href="http://b.android.com/22586" target="_blank" rel="external">Issue 22586</a>)和限制(<a href="http://b.android.com/78035" target="_blank" rel="external">Issue 78035</a>)，我們考慮是否可以人工對 DEX 的拆分進行干預，使每個 DEX 的大小在一定的合理範圍內，這樣就減少觸發 Dalvik linearAlloc 的缺陷和限制； 為了實現這幾個目的，我們需要解決下面三個問題：</p>
+<ol>
+<li>在打包過程中如何產生多個的 DEX 包？</li>
+<li>如果做到動態加載，怎麼決定哪些DEX動態加載呢？</li>
+<li>如果啟動後在工作線程中做動態加載，如果沒有加載完而用戶進行頁面操作需要使用到動態加載 DEX 中的 class 怎麼辦？</li>
+</ol>
+<p>我們首先來分析如何解決第一個問題，在使用 MultiDex 方案時，我們知道 BuildTool 會自動把代碼進行拆成多個 DEX 包，並且可以通過配置文件來控制哪些代碼放到第一個 DEX 包中， 下圖是 Android 的打包流程示意圖：<br><img alt="android_packaging.png" src="http://user-image.logdown.io/user/169/blog/169/post/308073/4gzMKiJrTBGSVz9PGXEm_android_packaging.png"></p>
+<p>為了實現產生多個 DEX 包，我們可以在生成 DEX 文件的這一步中， 在 Ant 或 gradle 中自定義一個 Task 來干預 DEX 產生的過程，從而產生多個 DEX，下圖是在 gradle 中干預產生 DEX 的自定 task 的程式碼:<br><figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">tasks.whenTaskAdded &#123; <span class="keyword">task</span> -&gt;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">task</span>.name.startsWith(<span class="string">'proguard'</span>) &amp;&amp; (<span class="keyword">task</span>.name.endsWith(<span class="string">'Debug'</span>) || <span class="keyword">task</span>.name.endsWith(<span class="string">'Release'</span>))) &#123;</span><br><span class="line">        <span class="keyword">task</span>.<span class="keyword">doLast</span> &#123;</span><br><span class="line">            makeDexFileAfterProguardJar();</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">task</span>.<span class="keyword">doFirst</span> &#123;</span><br><span class="line">            <span class="keyword">delete</span> <span class="string">"$&#123;project.buildDir&#125;/intermediates/classes-proguard"</span>;</span><br><span class="line"></span><br><span class="line">            String flavor = <span class="keyword">task</span>.name.substring(<span class="string">'proguard'</span>.length(), <span class="keyword">task</span>.name.lastIndexOf(<span class="keyword">task</span>.name.endsWith(<span class="string">'Debug'</span>) ? <span class="string">"Debug"</span> : <span class="string">"Release"</span>));</span><br><span class="line">            generateMainIndexKeepList(flavor.toLowerCase());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (<span class="keyword">task</span>.name.startsWith(<span class="string">'zipalign'</span>) &amp;&amp; (<span class="keyword">task</span>.name.endsWith(<span class="string">'Debug'</span>) || <span class="keyword">task</span>.name.endsWith(<span class="string">'Release'</span>))) &#123;</span><br><span class="line">        <span class="keyword">task</span>.<span class="keyword">doFirst</span> &#123;</span><br><span class="line">            ensureMultiDexInApk();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>上一步解決了如何打包出多個 DEX 的問題了，那我們該怎麼該根據什麼來決定哪些 class 放到 Main DEX，哪些放到 Secondary DEX 呢（這裡的 Main DEX 是指在 2.1 版本的 Dalvik VM 之前由 android 系統在啟動 apk 時自己主動加載的 Classes.dex，而S econdary DEX 是指需要我們自己安裝進去的 DEX，例如：Classes2.dex, Classes3.dex等）， 這個需要分析出放到 Main DEX 中的 class 依賴，需要確保把 Main DEX 中 class 所有的依賴都要放進來，否則在啟動時會發生 ClassNotFoundException，這裡我們的方案是把 Service、Receiver、Provider 涉及到的代碼都放到 Main DEX 中，而把 Activity 涉及到的代碼進行了一定的拆分，把首頁 Activity、Laucher Activity、歡迎頁的 Activity、城市列表頁 Activity 等所依賴的 class 放到了 Main DEX 中，把二級、三級頁面的 Activity 以及業務頻道的代碼放到了 Secondary DEX 中，為了減少人工分析 class 的依賴所帶了的不可維護性和高風險性，我們編寫了一個能夠自動分析 Class依賴的腳本， 從而能夠保證 Main DEX 包含 class 以及他們所依賴的所有 class 都在其內，這樣這個腳本就會在打包之前自動分析出啟動到 Main DEX 所涉及的所有代碼，保證 Main DEX 運行正常。</p>
+<p>隨著第二個問題的迎刃而解，我們來到了比較棘手的第三問題，如果我們在後台加載 Secondary DEX 過程中，用戶點擊界面將要跳轉到使用了在 Secondary DEX 中 class 的界面， 那此時必然發生 ClassNotFoundException，那怎麼解決這個問題呢，在所有的 Activity 跳轉代碼處添加判斷 Secondary DEX 是否加載完成？這個方法可行，但工作量非常大； 那有沒有更好的解決方案呢？我們通過分析 Activity 的啟動過程，發現 Activity 是由 ActivityThread 通過 Instrumentation 來啟動的，我們是否可以在 Instrumentation 中做一定的手腳呢？通過分析代碼 ActivityThread 和 Instrumentation 發現， Instrumentation 有關 Activity 啟動相關的方法大概有：execStartActivity、newActivity等等，這樣我們就可以在這些方法中添加代碼邏輯進行判斷這個 Class 是否加載了，如果加載則直接啟動這個 Activity，如果沒有加載完成則啟動一個等待的 Activity 顯示給用戶，然後在這個 Activity 中等待後台 Secondary DEX 加載完成，完成後自動跳轉到用戶實際要跳轉的 Activity；這樣在代碼充分解耦合，以及每個業務代碼能夠做到顆粒化的前提下，我們就做到 Secondary DEX 的按需加載了， 下面是 Instrumentation 添加的部分關鍵代碼：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> ActivityResult <span class="title">execStartActivity</span><span class="params">(Context who, IBinder contextThread, IBinder token, Activity target,</span><br><span class="line">                                            Intent intent, <span class="keyword">int</span> requestCode)</span> </span>&#123;</span><br><span class="line">        ActivityResult activityResult = <span class="keyword">null</span>;</span><br><span class="line">        String className;</span><br><span class="line">        <span class="keyword">if</span> (intent.getComponent() != <span class="keyword">null</span>) &#123;</span><br><span class="line">            className = intent.getComponent().getClassName();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            ResolveInfo resolveActivity = who.getPackageManager().resolveActivity(intent, <span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (resolveActivity != <span class="keyword">null</span> &amp;&amp; resolveActivity.activityInfo != <span class="keyword">null</span>) &#123;</span><br><span class="line">                className = resolveActivity.activityInfo.name;</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                className = <span class="keyword">null</span>;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (!TextUtils.isEmpty(className)) &#123;</span><br><span class="line">            <span class="keyword">boolean</span> shouldInterrupted = !MeituanApplication.isDexAvailable();</span><br><span class="line">            <span class="keyword">if</span> (MeituanApplication.sIsDexAvailable.get() || mByPassActivityClassNameList.contains(className)) &#123;</span><br><span class="line">                shouldInterrupted = <span class="keyword">false</span>;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">if</span> (shouldInterrupted) &#123;</span><br><span class="line">                Intent interruptedIntent = <span class="keyword">new</span> Intent(mContext, WaitingActivity.class);</span><br><span class="line"></span><br><span class="line">                activityResult = execStartActivity(who, contextThread, token, target, interruptedIntent, requestCode);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                activityResult = execStartActivity(who, contextThread, token, target, intent, requestCode);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            activityResult = execStartActivity(who, contextThread, token, target, intent, requestCode);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">return</span> activityResult;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Activity <span class="title">newActivity</span><span class="params">(Class&lt;?&gt; clazz, Context context, IBinder token,</span><br><span class="line">                                Application application, Intent intent, ActivityInfo info,</span><br><span class="line">                                CharSequence title, Activity parent, String id, Object lastNonConfigurationInstance)</span></span><br><span class="line">            <span class="keyword">throws</span> InstantiationException, IllegalAccessException </span>&#123;</span><br><span class="line"></span><br><span class="line">        String className = <span class="string">""</span>;</span><br><span class="line">        Activity newActivity = <span class="keyword">null</span>;</span><br><span class="line">        <span class="keyword">if</span> (intent.getComponent() != <span class="keyword">null</span>) &#123;</span><br><span class="line">            className = intent.getComponent().getClassName();</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">boolean</span> shouldInterrupted = !MeituanApplication.isDexAvailable();</span><br><span class="line">        <span class="keyword">if</span> (MeituanApplication.sIsDexAvailable.get() || mByPassActivityClassNameList.contains(className)) &#123;</span><br><span class="line">            shouldInterrupted = <span class="keyword">false</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span> (shouldInterrupted) &#123;</span><br><span class="line">            intent = <span class="keyword">new</span> Intent(mContext, WaitingActivity.class);</span><br><span class="line">            newActivity = mBase.newActivity(clazz, context, token,</span><br><span class="line">                    application, intent, info, title, parent, id,</span><br><span class="line">                    lastNonConfigurationInstance);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            newActivity = mBase.newActivity(clazz, context, token,</span><br><span class="line">                    application, intent, info, title, parent, id,</span><br><span class="line">                    lastNonConfigurationInstance);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> newActivity;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>實際應用中我們還遇到另外一個比較棘手的問題， 就是 Field 的過多的問題，Field 過多是由我們目前採用的代碼組織結構引入的，我們為了方便多業務線、多團隊並發協作的情況下開發，我們採用的 aar 的方式進行開發，並同時在 aar 依賴鏈的最底層引入了一個通用業務 aar，而這個通用業務 aar 中包含了很多資源，而 ADT14 以及更高的版本中對 Library 資源處理時，Library 的 R 資源不再是static final的了，<a href="http://tools.android.com/tips/non-constant-fields" target="_blank" rel="external">詳情請查看 google 官方說明</a>，這樣在最終打包時 Library 中的 R 沒法做到內聯，這樣帶來了 R field 過多的情況，導致需要拆分多個 Secondary DEX，為瞭解決這個問題我們採用的是在打包過程中利用腳本把 Libray 中 R field（例如 ID、Layout、Drawable 等）的引用替換成常量，然後刪去 Library 中 R.class 中的相應 Field。</p>
+<h1 id="u7E3D_u7D50"><a href="#u7E3D_u7D50" class="headerlink" title="總結"></a>總結</h1><p>上面就是我們在使用 MultiDex 過程中進化而來的DEX自動化拆包的方案，這樣我們就可以通過腳本控制來進行自動化的拆分 DEX，然後在運行時自由的加載 Secondary DEX，既能保證冷啟動速度，又能減少運行時的內存佔用。</p>
+<p><strong>原文轉貼至<a href="http://tech.meituan.com/mt-android-auto-split-dex.html" target="_blank" rel="external">美团技术团队博客</a></strong></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2015/12/13/hello-world/" data-id="cii4j0ikf0000l5hp2kvg0rwl" class="article-share-link">Share</a>
+      <a data-url="http://SemonCat.github.io/2015/11/05/repost-group-introduction-to-android-dex-automatically-unpacked-and-loaded-dynamically/" data-id="cii4jfkhw0001yshpzlsoakhq" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-sailssocket-with-android-client" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/07/12/sailssocket-with-android-client/" class="article-date">
+  <time datetime="2015-07-11T22:00:00.000Z" itemprop="datePublished">2015-07-12</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/07/12/sailssocket-with-android-client/">Sails.socket with android client</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p> 最近嘗試使用 sails 來當做 Api Server，</p>
+<p> 結果在 Android 要用 Socket io 連線就遇到問題了，</p>
+<p> 原來是 sails 要停用 sails.io ，</p>
+<p> 所以會去檢查 client 的版本號，</p>
+<p> 但是 Android Socket io 並不會去送版本號，</p>
+<p> 解決方法也非常簡單，</p>
+<p> 只有在 Android Client 連線的時候代入版本的資訊即可，</p>
+<p> Sample 如下，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">IO.Options opts = <span class="keyword">new</span> IO.Options();</span><br><span class="line">opts.query = <span class="string">"__sails_io_sdk_version=0.11.0&amp;__sails_io_sdk_platform=android&amp;__sails_io_sdk_language=java"</span>;</span><br><span class="line">mSocket = IO.socket(<span class="string">"http://xx.xx.xx.xx:1337"</span>,opts);</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://SemonCat.github.io/2015/07/12/sailssocket-with-android-client/" data-id="cii4jfki20002yshpi4a2i7je" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-65536-solution-for-ant-build" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2015/06/04/65536-solution-for-ant-build/" class="article-date">
+  <time datetime="2015-06-03T21:46:00.000Z" itemprop="datePublished">2015-06-04</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/android/">android</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2015/06/04/65536-solution-for-ant-build/">65536 solution for ant build</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p>###65536</p>
+<p>Android 的 App 如果有包 Google play service ，</p>
+<p>非常容易出現以下錯誤，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Unable to execute dex: method ID not in [<span class="number">0</span>, <span class="number">0xffff</span>]: <span class="number">65536</span></span><br></pre></td></tr></table></figure>
+<p>官方目前只有提供 Gralde 解法，</p>
+<p><a href="https://developer.android.com/tools/support-library/features.html#multidex" target="_blank" rel="external">Multidex Support Library</a></p>
+<p>但是仍然在使用 Ant build 的專案，</p>
+<p>官方並沒有提供使用說明，</p>
+<p>其實仍然是可以使用，</p>
+<p>只是方法比較麻煩，</p>
+<p>寫成教學提供大家參考。</p>
+<p>###教學</p>
+<ol>
+<li><p>將 android-support-multidex.jar 加入自己的專案中。（通常在這個目錄下 <code>{sdk.dir}/extras/android/support/multidex/library/libs/android-support-multidex.jar</code>）</p>
+</li>
+<li><p>繼承<code>MultiDexApplication</code>或 </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">protected</span> <span class="keyword">void</span> <span class="title">attachBaseContext</span><span class="params">(Context base)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.attachBaseContext(base);</span><br><span class="line">    MultiDex.install(<span class="keyword">this</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>將 3rd Party 或不會修改的 Lib 集合成一個 Jar ，到 SDK 目錄下的 build-tools 使用 Dx 來將這個 Jar 輸出成<code>classes2.dex</code>、<code>classes3.dex</code>…等等，注意一定要照順序。</p>
+</li>
+<li><p>把這些 Dex 檔案放入 Src 資料夾中。</p>
+</li>
+<li><p>把被打包的 Jar 加到依賴裡面，但是選擇不編譯，就像 android.jar 一樣。</p>
+</li>
+<li><p>完成，這樣就突破 65536 的限制了。</p>
+</li>
+</ol>
+<p>###後話</p>
+<p>其實還有更簡單的方法，</p>
+<p>去下載獨立的 Google play service 包，</p>
+<p><a href="https://developers.google.com/android/guides/setup#split" target="_blank" rel="external">Google play service#split</a></p>
+<p>這裡提供了 Gradle Build 的分離寫法，</p>
+<p>Ant Build 也可以使用，</p>
+<p>先用 Android Studio 下載你需要的 Library，</p>
+<p>例如我需要 GCM ，就在 Gradle 加入這兩行，</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">compile</span> <span class="string">'com.google.android.gms:play-services-base:7.5.0'</span></span><br><span class="line"><span class="keyword">compile</span> <span class="string">'com.google.android.gms:play-services-gcm:7.5.0'</span></span><br></pre></td></tr></table></figure>
+<p>注意<code>play-services-base</code>是一定要引用的，</p>
+<p>下載完以後，到你專案下的目錄找檔案，</p>
+<p><code>/app/build/intermediates/exploded-aar/com.google.android.gms/play-services</code></p>
+<p>把 play-services-base 當成 Library Project 依賴到 Ant Build 的專案中，</p>
+<p>在把其他用到的 Jar 加入即可，</p>
+<p>如果你的其他 Play Service Library 有 Resource ，</p>
+<p>要注意 Resource Merge 的問題。</p>
+<p>如此以來你就完成了自己精簡版的 Play Service 了，</p>
+<p>不過最後還是建議早日換成 Gradle Build ，就不需要花費這麼多功夫在上面了。</p>
+<h3 id="u53C3_u8003"><a href="#u53C3_u8003" class="headerlink" title="參考"></a>參考</h3><ol>
+<li><a href="http://www.lephones.net/2014/11/27/multi-dex-app/" target="_blank" rel="external">http://www.lephones.net/2014/11/27/multi-dex-app/</a></li>
+</ol>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://SemonCat.github.io/2015/06/04/65536-solution-for-ant-build/" data-id="cii4jfki40003yshpyh49f0q9" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-appcompat-v21-material-support" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/10/20/appcompat-v21-material-support/" class="article-date">
+  <time datetime="2014-10-20T07:18:00.000Z" itemprop="datePublished">2014-10-20</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/10/20/appcompat-v21-material-support/">Appcompat v21 Material Support</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>Google 釋出了 v21 的 Appcompat，</p>
+<p>讓 Material Design 的某些 Widget 可以向下相容，</p>
+<p>並且將 Actionbar 替換為 Toolbar，</p>
+<p>這是一個非常大的變動，</p>
+        
+          <p class="article-more-link">
+            <a href="/2014/10/20/appcompat-v21-material-support/#more">Read More</a>
+          </p>
+        
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://SemonCat.github.io/2014/10/20/appcompat-v21-material-support/" data-id="cii4jfki80006yshpnpfsysvt" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-android-adapter-viewholder" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/10/06/android-adapter-viewholder/" class="article-date">
+  <time datetime="2014-10-05T17:44:00.000Z" itemprop="datePublished">2014-10-06</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/10/06/android-adapter-viewholder/">Android Adapter ViewHolder</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p>Android 的 ViewHolder 相信大家都有接觸過，</p>
+<p>但是那個程式碼實在很醜很煩，</p>
+<p>找到了一種比較簡潔的寫法，</p>
+<p>分享給大家，</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ViewHolder</span> </span>&#123;</span><br><span class="line">    <span class="comment">// I added a generic return type to reduce the casting noise in client code</span></span><br><span class="line">    <span class="annotation">@SuppressWarnings</span>(<span class="string">"unchecked"</span>)</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> &lt;T extends View&gt; <span class="function">T <span class="title">get</span><span class="params">(View view, <span class="keyword">int</span> id)</span> </span>&#123;</span><br><span class="line">        SparseArray&lt;View&gt; viewHolder = (SparseArray&lt;View&gt;) view.getTag();</span><br><span class="line">        <span class="keyword">if</span> (viewHolder == <span class="keyword">null</span>) &#123;</span><br><span class="line">            viewHolder = <span class="keyword">new</span> SparseArray&lt;View&gt;();</span><br><span class="line">            view.setTag(viewHolder);</span><br><span class="line">        &#125;</span><br><span class="line">        View childView = viewHolder.get(id);</span><br><span class="line">        <span class="keyword">if</span> (childView == <span class="keyword">null</span>) &#123;</span><br><span class="line">            childView = view.findViewById(id);</span><br><span class="line">            viewHolder.put(id, childView);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> (T) childView;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>useage<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="annotation">@Override</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> View <span class="title">getView</span><span class="params">(<span class="keyword">int</span> position, View convertView, ViewGroup parent)</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (convertView == <span class="keyword">null</span>) &#123;</span><br><span class="line">        convertView = LayoutInflater.from(context)</span><br><span class="line">          .inflate(R.layout.banana_phone, parent, <span class="keyword">false</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    ImageView bananaView = ViewHolder.get(convertView, R.id.banana);</span><br><span class="line">    TextView phoneView = ViewHolder.get(convertView, R.id.phone);</span><br><span class="line"></span><br><span class="line">    BananaPhone bananaPhone = getItem(position);</span><br><span class="line">    phoneView.setText(bananaPhone.getPhone());</span><br><span class="line">    bananaView.setImageResource(bananaPhone.getBanana());</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> convertView;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://SemonCat.github.io/2014/10/06/android-adapter-viewholder/" data-id="cii4jfkia0007yshp5ilnzaqq" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-l-recyclerview-low-android-version-support" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/07/06/l-recyclerview-low-android-version-support/" class="article-date">
+  <time datetime="2014-07-06T09:33:00.000Z" itemprop="datePublished">2014-07-06</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/07/06/l-recyclerview-low-android-version-support/">Android L Recyclerview 低版本支援</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p>2014 Google IO 釋出了三個新元件，</p>
+<p>直接引入的話會有一點問題，</p>
+<p>附上可以順利編譯的設定，</p>
+<figure class="highlight xml"><figcaption><span>AndroidManifest.xml</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">manifest</span> <span class="attribute">xmlns:android</span>=<span class="value">"http://schemas.android.com/apk/res/android"</span></span><br><span class="line">    <span class="attribute">xmlns:tools</span>=<span class="value">"http://schemas.android.com/tools"</span></span><br><span class="line">    <span class="attribute">package</span>=<span class="value">"com.semoncat.yourpackage"</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="title">uses-sdk</span></span><br><span class="line">        <span class="attribute">tools:node</span>=<span class="value">"replace"</span> /&gt;</span></span><br><span class="line">        </span><br><span class="line">        ...</span><br><span class="line">        </span><br><span class="line"><span class="tag">&lt;/<span class="title">manifest</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight"><figcaption><span>build.gradle</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">android &#123;&#10;    compileSdkVersion 20&#10;    buildToolsVersion &#39;20.0.0&#39;&#10;&#10;    defaultConfig &#123;&#10;        minSdkVersion 15&#10;        targetSdkVersion 20&#10;        versionCode 1&#10;        versionName &#34;1.0&#34;&#10;    &#125;&#10;&#125;&#10;&#10;dependencies &#123;&#10;    compile &#39;com.android.support:recyclerview-v7:+&#39;&#10;    compile &#39;com.android.support:cardview-v7:+&#39;&#10;    compile &#39;com.android.support:palette-v7:+&#39;&#10;&#125;</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://SemonCat.github.io/2014/07/06/l-recyclerview-low-android-version-support/" data-id="cii4jfkib0008yshpfzcxhrtj" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-android-translucent-and-navigation-drawer" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/03/30/android-translucent-and-navigation-drawer/" class="article-date">
+  <time datetime="2014-03-30T07:07:00.000Z" itemprop="datePublished">2014-03-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/03/30/android-translucent-and-navigation-drawer/">Android Translucent and Navigation Drawer</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p>Android 4.4 中加入了對虛擬鍵礙眼的解決方案，</p>
+<p>其中 Translucent 可以讓虛擬鍵跟狀態列透明，</p>
+<p>但是搭配 Navigation Drawer 卻會出現如下圖的問題，</p>
+<p><img src="http://blog.gauntface.co.uk/wp-content/uploads/2014/01/device-2014-01-10-120346vjggjgjgj.png" alt=""></p>
+<p>之前是參考這個<a href="http://blog.mosil.biz/2014/01/android-transparent-kitkat/" target="_blank" rel="external">部落格</a>的文章，</p>
+<p>為 Drawer Content 跟 Main Content 的 Layout 都加入</p>
+<p><code>android:fitsSystemWindows=”true”</code>的屬性，</p>
+<p>只是 Drawer Content 不管怎麼樣都沒反應，</p>
+<p>都來 Google 了許久，找到一篇討論，</p>
+<p>原來<code>fitsSystemWindows</code>在同一個 Layout 中只會作用一次，</p>
+<p>一直找不到別的解法，</p>
+<p>直到<a href="http://blog.gauntface.co.uk/2014/01/10/translucent-theme-in-android/" target="_blank" rel="external">這篇</a>文章，</p>
+<p>讓我恍然大悟，</p>
+<p>山不轉路轉，</p>
+<p>只要在最外圍在加一層 Layout ，</p>
+<p>並且設定<code>fitsSystemWindows</code>就可以了，</p>
+<p>這麼簡單的解法居然一直都沒想到，</p>
+<p>浪費了超多時間！</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://SemonCat.github.io/2014/03/30/android-translucent-and-navigation-drawer/" data-id="cii4jfkie0009yshp82gv1eq3" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-android-source-code-style" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/02/06/android-source-code-style/" class="article-date">
+  <time datetime="2014-02-06T07:30:00.000Z" itemprop="datePublished">2014-02-06</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/02/06/android-source-code-style/">Android Source  Code Style</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p>之前在看 Android 的 Source Code 時，</p>
+<p>看到變數前面都會加個 m ，</p>
+<p>以為很潮就跟著學起來，</p>
+<p>其實根本不知其所以然，</p>
+<p>直到今天在 Android Source Code 文件看到解說才知道，</p>
+<p>原來 Android Source Code 遵守以下的規範：</p>
+<ul>
+<li>非 Public、static 變數名稱開頭加 m</li>
+<li>static 變數開頭加 s</li>
+<li>其他變數使用小寫字母開頭</li>
+<li>Public static final 變數使用大寫字母</li>
+</ul>
+<figure class="highlight java"><figcaption><span>範例</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">MyClass</span> </span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="keyword">int</span> SOME_CONSTANT = <span class="number">42</span>;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">int</span> publicField;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> MyClass sSingleton;</span><br><span class="line">    <span class="keyword">int</span> mPackagePrivate;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">int</span> mPrivate;</span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">int</span> mProtected;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://source.android.com/source/code-style.html#follow-field-naming-conventions" target="_blank" rel="external">來源</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://SemonCat.github.io/2014/02/06/android-source-code-style/" data-id="cii4jfkif000ayshpqff6453k" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-ndk-lib-support-on-android-studio" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/02/02/ndk-lib-support-on-android-studio/" class="article-date">
+  <time datetime="2014-02-02T10:19:00.000Z" itemprop="datePublished">2014-02-02</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/02/02/ndk-lib-support-on-android-studio/">NDK lib support on Android Studio</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p>Android Studio 雖然好用，</p>
+<p>但是現在仍然不完善，</p>
+<p>尤其是缺乏對於 NDK Lib 的支援，</p>
+<p>但是網路上的強者們總有方法，</p>
+<p>經過幾個小時的尋找，</p>
+<p>終於在 Stackoverflow 找到解法！</p>
+<ol>
+<li><p>將所有的<code>.so</code>檔案放至以下路徑結構 <code>lib/armeabi</code>。</p>
+</li>
+<li><p>將<code>lib</code>壓縮成<code>armeabi.jar</code>。</p>
+</li>
+<li><p>放到專案目錄的其他<code>jar</code>放在一起。</p>
+</li>
+</ol>
+<p>4.在<code>build.gradle</code>加入：</p>
+<figure class="highlight"><figcaption><span>build.gradle</span></figcaption><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dependencies &#123;&#10;&#9;compile files(&#39;libs/armeabi.jar&#39;)&#10;&#125;</span><br></pre></td></tr></table></figure>
+<p><a href="http://stackoverflow.com/questions/17522164/how-to-copy-or-use-native-libs-with-android-studio-gradle-build/17730219#17730219" target="_blank" rel="external">來源</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://SemonCat.github.io/2014/02/02/ndk-lib-support-on-android-studio/" data-id="cii4jfkii000byshpauewdcwn" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-android-string-html-resource-with-format" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/01/20/android-string-html-resource-with-format/" class="article-date">
+  <time datetime="2014-01-20T10:17:00.000Z" itemprop="datePublished">2014-01-20</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2014/01/20/android-string-html-resource-with-format/">Android String Html Resource With Format</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p>今天有一個需求，</p>
+<p>有一個 String Resource 裡面有 Arguments ，</p>
+<p>想要在包 Html ，</p>
+<p>結果發現直接使用<code>String.format(string, arg1,arg2...);</code>，</p>
+<p>是沒有效果的，</p>
+<p>在 Stackoverflow 搜尋一下以後終於找到解答，</p>
+<p>必須在<code>arg</code>外在包一層<code>TextUtils.htmlEncode</code>，</p>
+<p>也就是下列的程式碼</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">String arg1 = something;</span><br><span class="line">String arg2 = something;</span><br><span class="line"></span><br><span class="line">String mContent = </span><br><span class="line">				String.format(resourceString,</span><br><span class="line">                      TextUtils.htmlEncode(arg1),</span><br><span class="line">                      TextUtils.htmlEncode(arg2));</span><br><span class="line"></span><br><span class="line">Textview mTextview = findViewById(R.id.someview);</span><br><span class="line">mTextview.setText(Html.fromHtml(mContent));</span><br></pre></td></tr></table></figure>
+<p>這樣就可以順利顯示囉！</p>
+<p>順帶一提， Android 在解析 Html 的時候，</p>
+<p>會忽略 font 標籤的 size 設定，</p>
+<p>所以不要傻傻的用 font 設定字體大小哦！</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://SemonCat.github.io/2014/01/20/android-string-html-resource-with-format/" data-id="cii4jfkik000cyshpcpfnt54s" class="article-share-link">Share</a>
       
       
     </footer>
@@ -107,11 +625,22 @@
 
   
   
+    <nav id="page-nav">
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    </nav>
+  
 </section>
         
           <aside id="sidebar">
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Article/">Article</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DIY/">DIY</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DIY/DoctorWho/">DoctorWho</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DIY/DoctorWho/紙模/">紙模</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Laptop/">Laptop</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Laptop/DIY/">DIY</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Life/">Life</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web/">Web</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/android/">android</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/jquery/">jquery</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
   
     
   
@@ -121,7 +650,7 @@
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/12/">December 2015</a><span class="archive-list-count">1</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/03/">March 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/02/">February 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/11/">November 2013</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/08/">August 2013</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/07/">July 2013</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/11/">November 2012</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/10/">October 2012</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/09/">September 2012</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/08/">August 2012</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/02/">February 2012</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2011/10/">October 2011</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2011/07/">July 2011</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2006/12/">December 2006</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2006/08/">August 2006</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2006/07/">July 2006</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2006/05/">May 2006</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2006/04/">April 2006</a><span class="archive-list-count">10</span></li></ul>
     </div>
   </div>
 
@@ -133,7 +662,23 @@
       <ul>
         
           <li>
-            <a href="/2015/12/13/hello-world/">Hello World</a>
+            <a href="/2015/11/05/repost-group-introduction-to-android-dex-automatically-unpacked-and-loaded-dynamically/">[轉貼] Android DEX 自動拆包及動態加載簡介</a>
+          </li>
+        
+          <li>
+            <a href="/2015/07/12/sailssocket-with-android-client/">Sails.socket with android client</a>
+          </li>
+        
+          <li>
+            <a href="/2015/06/04/65536-solution-for-ant-build/">65536 solution for ant build</a>
+          </li>
+        
+          <li>
+            <a href="/2014/10/20/appcompat-v21-material-support/">Appcompat v21 Material Support</a>
+          </li>
+        
+          <li>
+            <a href="/2014/10/06/android-adapter-viewholder/">Android Adapter ViewHolder</a>
           </li>
         
       </ul>

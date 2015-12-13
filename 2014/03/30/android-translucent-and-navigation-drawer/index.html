@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  <title>Android Translucent and Navigation Drawer | Signit</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="Android 4.4 中加入了對虛擬鍵礙眼的解決方案，
+其中 Translucent 可以讓虛擬鍵跟狀態列透明，
+但是搭配 Navigation Drawer 卻會出現如下圖的問題，
+
+之前是參考這個部落格的文章，
+為 Drawer Content 跟 Main Content 的 Layout 都加入
+android:fitsSystemWindows=”true”的屬性，
+只是 Drawer">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Android Translucent and Navigation Drawer">
+<meta property="og:url" content="http://SemonCat.github.io/2014/03/30/android-translucent-and-navigation-drawer/index.html">
+<meta property="og:site_name" content="Signit">
+<meta property="og:description" content="Android 4.4 中加入了對虛擬鍵礙眼的解決方案，
+其中 Translucent 可以讓虛擬鍵跟狀態列透明，
+但是搭配 Navigation Drawer 卻會出現如下圖的問題，
+
+之前是參考這個部落格的文章，
+為 Drawer Content 跟 Main Content 的 Layout 都加入
+android:fitsSystemWindows=”true”的屬性，
+只是 Drawer">
+<meta property="og:image" content="http://blog.gauntface.co.uk/wp-content/uploads/2014/01/device-2014-01-10-120346vjggjgjgj.png">
+<meta property="og:updated_time" content="2015-12-13T12:54:08.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Android Translucent and Navigation Drawer">
+<meta name="twitter:description" content="Android 4.4 中加入了對虛擬鍵礙眼的解決方案，
+其中 Translucent 可以讓虛擬鍵跟狀態列透明，
+但是搭配 Navigation Drawer 卻會出現如下圖的問題，
+
+之前是參考這個部落格的文章，
+為 Drawer Content 跟 Main Content 的 Layout 都加入
+android:fitsSystemWindows=”true”的屬性，
+只是 Drawer">
+  
+    <link rel="alternative" href="/atom.xml" title="Signit" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/favicon.png">
+  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="/css/style.css" type="text/css">
+  
+
+</head>
+<body>
+  <div id="container">
+    <div id="wrap">
+      <header id="header">
+  <div id="banner"></div>
+  <div id="header-outer" class="outer">
+    <div id="header-title" class="inner">
+      <h1 id="logo-wrap">
+        <a href="/" id="logo">Signit</a>
+      </h1>
+      
+    </div>
+    <div id="header-inner" class="inner">
+      <nav id="main-nav">
+        <a id="main-nav-toggle" class="nav-icon"></a>
+        
+          <a class="main-nav-link" href="/">Home</a>
+        
+          <a class="main-nav-link" href="/archives">Archives</a>
+        
+      </nav>
+      <nav id="sub-nav">
+        
+          <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
+        
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
+      </nav>
+      <div id="search-form-wrap">
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://SemonCat.github.io"></form>
+      </div>
+    </div>
+  </div>
+</header>
+      <div class="outer">
+        <section id="main"><article id="post-android-translucent-and-navigation-drawer" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2014/03/30/android-translucent-and-navigation-drawer/" class="article-date">
+  <time datetime="2014-03-30T07:07:00.000Z" itemprop="datePublished">2014-03-30</time>
+</a>
+    
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Android Translucent and Navigation Drawer
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <a id="more"></a>
+<p>Android 4.4 中加入了對虛擬鍵礙眼的解決方案，</p>
+<p>其中 Translucent 可以讓虛擬鍵跟狀態列透明，</p>
+<p>但是搭配 Navigation Drawer 卻會出現如下圖的問題，</p>
+<p><img src="http://blog.gauntface.co.uk/wp-content/uploads/2014/01/device-2014-01-10-120346vjggjgjgj.png" alt=""></p>
+<p>之前是參考這個<a href="http://blog.mosil.biz/2014/01/android-transparent-kitkat/" target="_blank" rel="external">部落格</a>的文章，</p>
+<p>為 Drawer Content 跟 Main Content 的 Layout 都加入</p>
+<p><code>android:fitsSystemWindows=”true”</code>的屬性，</p>
+<p>只是 Drawer Content 不管怎麼樣都沒反應，</p>
+<p>都來 Google 了許久，找到一篇討論，</p>
+<p>原來<code>fitsSystemWindows</code>在同一個 Layout 中只會作用一次，</p>
+<p>一直找不到別的解法，</p>
+<p>直到<a href="http://blog.gauntface.co.uk/2014/01/10/translucent-theme-in-android/" target="_blank" rel="external">這篇</a>文章，</p>
+<p>讓我恍然大悟，</p>
+<p>山不轉路轉，</p>
+<p>只要在最外圍在加一層 Layout ，</p>
+<p>並且設定<code>fitsSystemWindows</code>就可以了，</p>
+<p>這麼簡單的解法居然一直都沒想到，</p>
+<p>浪費了超多時間！</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://SemonCat.github.io/2014/03/30/android-translucent-and-navigation-drawer/" data-id="cii4jfkie0009yshp82gv1eq3" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/2014/07/06/l-recyclerview-low-android-version-support/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Android L Recyclerview 低版本支援
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2014/02/06/android-source-code-style/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Android Source  Code Style</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+</section>
+        
+          <aside id="sidebar">
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Categories</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/Article/">Article</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/DIY/">DIY</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DIY/DoctorWho/">DoctorWho</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/DIY/DoctorWho/紙模/">紙模</a><span class="category-list-count">1</span></li></ul></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Laptop/">Laptop</a><span class="category-list-count">1</span><ul class="category-list-child"><li class="category-list-item"><a class="category-list-link" href="/categories/Laptop/DIY/">DIY</a><span class="category-list-count">1</span></li></ul></li><li class="category-list-item"><a class="category-list-link" href="/categories/Life/">Life</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/Web/">Web</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/android/">android</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/jquery/">jquery</a><span class="category-list-count">1</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  
+    
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Archives</h3>
+    <div class="widget">
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/11/">November 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/07/">July 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2015/06/">June 2015</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/10/">October 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/07/">July 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/03/">March 2014</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/02/">February 2014</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2014/01/">January 2014</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/12/">December 2013</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/11/">November 2013</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/10/">October 2013</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/08/">August 2013</a><span class="archive-list-count">4</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2013/07/">July 2013</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/11/">November 2012</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/10/">October 2012</a><span class="archive-list-count">5</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/09/">September 2012</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/08/">August 2012</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2012/02/">February 2012</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2011/10/">October 2011</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2011/07/">July 2011</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2006/12/">December 2006</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2006/08/">August 2006</a><span class="archive-list-count">3</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2006/07/">July 2006</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2006/05/">May 2006</a><span class="archive-list-count">10</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2006/04/">April 2006</a><span class="archive-list-count">10</span></li></ul>
+    </div>
+  </div>
+
+  
+    
+  <div class="widget-wrap">
+    <h3 class="widget-title">Recents</h3>
+    <div class="widget">
+      <ul>
+        
+          <li>
+            <a href="/2015/11/05/repost-group-introduction-to-android-dex-automatically-unpacked-and-loaded-dynamically/">[轉貼] Android DEX 自動拆包及動態加載簡介</a>
+          </li>
+        
+          <li>
+            <a href="/2015/07/12/sailssocket-with-android-client/">Sails.socket with android client</a>
+          </li>
+        
+          <li>
+            <a href="/2015/06/04/65536-solution-for-ant-build/">65536 solution for ant build</a>
+          </li>
+        
+          <li>
+            <a href="/2014/10/20/appcompat-v21-material-support/">Appcompat v21 Material Support</a>
+          </li>
+        
+          <li>
+            <a href="/2014/10/06/android-adapter-viewholder/">Android Adapter ViewHolder</a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+
+  
+</aside>
+        
+      </div>
+      <footer id="footer">
+  
+  <div class="outer">
+    <div id="footer-info" class="inner">
+      &copy; 2015 Tex Huang<br>
+      Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
+    </div>
+  </div>
+</footer>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+</nav>
+    
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+
+
+  <link rel="stylesheet" href="/fancybox/jquery.fancybox.css" type="text/css">
+  <script src="/fancybox/jquery.fancybox.pack.js" type="text/javascript"></script>
+
+
+<script src="/js/script.js" type="text/javascript"></script>
+
+  </div>
+</body>
+</html>
